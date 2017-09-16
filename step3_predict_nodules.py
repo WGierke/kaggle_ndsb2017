@@ -316,7 +316,7 @@ def predict_cubes(model_path, continue_job, only_patient_id=None, luna16=False, 
         # df = pandas.DataFrame(all_predictions_csv, columns=["patient_id", "anno_index", "coord_x", "coord_y", "coord_z", "diameter", "nodule_chance", "diameter_mm"])
         # df.to_csv("c:/tmp/tmp2.csv", index=False)
 
-        print(predict_volume.mean())
+        print("Mean Volume: " + str(predict_volume.mean()))
         print("Done in : ", sw.get_elapsed_seconds(), " seconds")
 
 

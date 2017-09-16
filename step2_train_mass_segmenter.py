@@ -385,7 +385,7 @@ def get_unet(learn_rate, load_weights_path=None) -> Model:
     # model.compile(optimizer=Adam(lr=1.0e-5), loss=dice_coef_loss, metrics=[dice_coef])
     model.compile(optimizer=SGD(lr=learn_rate, momentum=0.9, nesterov=True), loss=dice_coef_loss, metrics=[dice_coef])
 
-    model.summary()
+    #model.summary()
     return model
 
 

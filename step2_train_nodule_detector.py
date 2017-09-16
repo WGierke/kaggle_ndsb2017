@@ -347,7 +347,7 @@ def get_net(input_shape=(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE, 1), load_weight_path=N
 
     if features:
         model = Model(input=inputs, output=[last64])
-    model.summary(line_length=140)
+    #model.summary(line_length=140)
 
     return model
 
