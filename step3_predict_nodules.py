@@ -1,22 +1,13 @@
 import settings
 import helpers
-import sys
 import os
 import glob
 import random
 import pandas
 import ntpath
-import cv2
 import numpy
-from typing import List, Tuple
-from keras.optimizers import Adam, SGD
-from keras.layers import Input, Convolution2D, MaxPooling2D, UpSampling2D, merge, Convolution3D, MaxPooling3D, UpSampling3D, LeakyReLU, BatchNormalization, Flatten, Dense, Dropout, ZeroPadding3D, AveragePooling3D, Activation
-from keras.models import Model, load_model, model_from_json
-from keras.metrics import binary_accuracy, binary_crossentropy, mean_squared_error, mean_absolute_error
 from keras import backend as K
-from keras.callbacks import ModelCheckpoint, Callback, LearningRateScheduler
 from scipy.ndimage.interpolation import map_coordinates
-from scipy.ndimage.filters import gaussian_filter
 import math
 
 
@@ -253,7 +244,6 @@ def predict_cubes(model_path, continue_job, only_patient_id=None, luna16=False, 
         batch_list = []
         batch_list_coords = []
         patient_predictions_csv = []
-        cube_img = None
         annotation_index = 0
 
         for z in range(0, predict_volume_shape[0]):
@@ -296,7 +286,6 @@ def predict_cubes(model_path, continue_job, only_patient_id=None, luna16=False, 
                                     p_x_perc = round(p_x / patient_img.shape[2], 4)
                                     diameter_mm = round(p[1][i][0], 4)
                                     # diameter_perc = round(2 * step / patient_img.shape[2], 4)
-                                    diameter_perc = round(2 * step / patient_img.shape[2], 4)
                                     diameter_perc = round(diameter_mm / patient_img.shape[2], 4)
                                     nodule_chance = round(nodule_chance, 4)
                                     patient_predictions_csv_line = [annotation_index, p_x_perc, p_y_perc, p_z_perc, diameter_perc, nodule_chance, diameter_mm]
@@ -348,16 +337,15 @@ if __name__ == "__main__":
                 if remove_file:
                     os.remove(file_path)
 
-    if True:
-        for magnification in [1, 1.5, 2]:  #
-            predict_cubes("models/model_luna16_full__fs_best.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=True, holdout_no=None, ext_name="luna16_fs")
-            predict_cubes("models/model_luna16_full__fs_best.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=False, holdout_no=None, ext_name="luna16_fs")
+    for magnification in [1, 1.5, 2]:  #
+        predict_cubes("models/model_luna16_full__fs_best.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=True, holdout_no=None, ext_name="luna16_fs")
+        predict_cubes("models/model_luna16_full__fs_best.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=False, holdout_no=None, ext_name="luna16_fs")
+    print("Did magnification")
 
-    if True:
-        for version in [2, 1]:
-            for holdout in [0, 1]:
-                for magnification in [1, 1.5, 2]:  #
-                    predict_cubes("models/model_luna_posnegndsb_v" + str(version) + "__fs_h" + str(holdout) + "_end.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=True, holdout_no=holdout, ext_name="luna_posnegndsb_v" + str(version), fold_count=2)
-                    if holdout == 0:
-                        predict_cubes("models/model_luna_posnegndsb_v" + str(version) + "__fs_h" + str(holdout) + "_end.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=False, holdout_no=holdout, ext_name="luna_posnegndsb_v" + str(version), fold_count=2)
-
+    for version in [2, 1]:
+        for holdout in [0, 1]:
+            for magnification in [1, 1.5, 2]:  #
+                predict_cubes("models/model_luna_posnegndsb_v" + str(version) + "__fs_h" + str(holdout) + "_end.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=True, holdout_no=holdout, ext_name="luna_posnegndsb_v" + str(version), fold_count=2)
+                if holdout == 0:
+                    predict_cubes("models/model_luna_posnegndsb_v" + str(version) + "__fs_h" + str(holdout) + "_end.hd5", CONTINUE_JOB, only_patient_id=only_patient_id, magnification=magnification, flip=False, train_data=False, holdout_no=holdout, ext_name="luna_posnegndsb_v" + str(version), fold_count=2)
+    print("Did version and holdout")
