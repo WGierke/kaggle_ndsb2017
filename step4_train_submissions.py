@@ -20,8 +20,8 @@ def combine_nodule_predictions(dirs, train_set=True, nodule_th=0.5, extensions=[
     else:
         labels_df = pandas.read_csv("resources/stage2_sample_submission.csv")
 
-    mass_df = pandas.read_csv(settings.BASE_DIR + "masses_predictions.csv")
-    mass_df.set_index(["patient_id"], inplace=True)
+    #mass_df = pandas.read_csv(settings.BASE_DIR + "masses_predictions.csv")
+    #mass_df.set_index(["patient_id"], inplace=True)
 
     # meta_df = pandas.read_csv(settings.BASE_DIR + "patient_metadata.csv")
     # meta_df.set_index(["patient_id"], inplace=True)
@@ -34,7 +34,7 @@ def combine_nodule_predictions(dirs, train_set=True, nodule_th=0.5, extensions=[
         # if len(data_rows) > 19:
         #     break
         cancer_label = row["cancer"]
-        mass_pred = int(mass_df.loc[patient_id]["prediction"])
+        mass_pred = 0#int(mass_df.loc[patient_id]["prediction"])
         # meta_row = meta_df.loc[patient_id]
         # z_scale = meta_row["slice_thickness"]
         # x_scale = meta_row["spacingx"]
@@ -264,20 +264,19 @@ def train_xgboost_on_combined_nodules(extension, fixed_holdout=False, submission
             y_holdout = y[:300]
 
         seed = random.randint(0, 500) if fixed_holdout else 4242
-        if True:
-            clf = xgboost.XGBRegressor(max_depth=4,
-                                       n_estimators=80, #55
-                                       learning_rate=0.05,
-                                       min_child_weight=60,
-                                       nthread=8,
-                                       subsample=0.95, #95
-                                       colsample_bytree=0.95, # 95
-                                       # subsample=1.00,
-                                       # colsample_bytree=1.00,
-                                       seed=seed)
-            #
-            clf.fit(x_train, y_train, verbose=fixed_holdout and False, eval_set=[(x_train, y_train), (x_holdout, y_holdout)], eval_metric="logloss", early_stopping_rounds=5, )
-            holdout_preds = clf.predict(x_holdout)
+        clf = xgboost.XGBRegressor(max_depth=4,
+                                   n_estimators=80, #55
+                                   learning_rate=0.05,
+                                   min_child_weight=60,
+                                   nthread=8,
+                                   subsample=0.95, #95
+                                   colsample_bytree=0.95, # 95
+                                   # subsample=1.00,
+                                   # colsample_bytree=1.00,
+                                   seed=seed)
+        #
+        clf.fit(x_train, y_train, verbose=fixed_holdout and False, eval_set=[(x_train, y_train), (x_holdout, y_holdout)], eval_metric="logloss", early_stopping_rounds=5, )
+        holdout_preds = clf.predict(x_holdout)
 
         holdout_preds = numpy.clip(holdout_preds, 0.001, 0.999)
         # holdout_preds *= 0.93
